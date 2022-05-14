@@ -7,6 +7,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <filesystem>
 
 class Shader
 /*CREDITS:
@@ -32,8 +33,12 @@ public:
         try 
         {
             // open files
+            std::cout<<vertexPath;
+            std::cout<<"\n";
             vShaderFile.open(vertexPath);
+            if(vShaderFile.is_open()){std::cout<<"opened vertex";}
             fShaderFile.open(fragmentPath);
+            if(fShaderFile.is_open()){std::cout<<"opened fragment";}
             std::stringstream vShaderStream, fShaderStream;
             // read file's buffer contents into streams
             vShaderStream << vShaderFile.rdbuf();
