@@ -12,6 +12,8 @@
 				"-L${workspaceFolder}/lib",				
 				"${workspaceFolder}/src/main.cpp",				
 				"${workspaceFolder}/src/glad.c",
+				"${workspaceFolder}/src/vertexBuffer.cpp",
+				"${workspaceFolder}/src/elementBuffer.cpp",
                 "-lglfw3dll",
                 "-o",
                 "${workspaceFolder}/main.exe"
