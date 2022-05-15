@@ -1,9 +1,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
-#include <shaders/shader.h>
-#include <vertexBuffer.h>
-#include <elementBuffer.h>
+#include "shaders/shader.h"
+#include "vertexBuffer.h"
+#include "elementBuffer.h"
+#include "vertexArray.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -52,19 +53,14 @@ int main()
 	};
 
 	//make buff objects
-    unsigned int VAO;
-    glGenVertexArrays(1, &VAO);
-	//bind buffer objects
-    glBindVertexArray(VAO);
-	
+	VertextArray vao;
 	VertexBuffer vbo(vertices,sizeof(vertices));
 	ElementBuffer ebo(indices,sizeof(indices));
     
-	
-
 	//Setup Vertex Layout
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+    VertexBufferLayout layout;
+	layout.push(3);
+	vao.addVertexBuffer(vbo,layout);
 	
 	// render loop
 	while (!glfwWindowShouldClose(window))
@@ -77,7 +73,7 @@ int main()
 
 		//render test
 		shader.use();
-        glBindVertexArray(VAO);
+        vao.bind();
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		//
 
