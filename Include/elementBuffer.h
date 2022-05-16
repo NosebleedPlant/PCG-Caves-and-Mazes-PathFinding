@@ -4,12 +4,14 @@ class ElementBuffer
 {
 private:
     unsigned int ID;
+    unsigned int count;
 public:
-    ElementBuffer(const unsigned int* data, unsigned int size)
+    ElementBuffer(const unsigned int* data, const unsigned int size)
     {
-    glGenBuffers(1, &ID);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+        count = size/sizeof(unsigned int);
+        glGenBuffers(1, &ID);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
     }
 
     ~ElementBuffer()
@@ -26,4 +28,6 @@ public:
     {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
+
+    inline unsigned int getCount() const {return count;} 
 };

@@ -1,7 +1,6 @@
 #pragma once
 #include "vertexBuffer.h"
 #include <vector>
-#include <glad/glad.h>
 
 struct VertexBufferElement
 {
@@ -30,17 +29,17 @@ public:
     }
 };
 
-class VertextArray
+class VertexArray
 {
 private:
     unsigned int ID;
 public:
-    VertextArray()
+    VertexArray()
     {
         glGenVertexArrays(1, &ID);
         glBindVertexArray(ID);
     }
-    ~VertextArray()
+    ~VertexArray()
     {
         glDeleteVertexArrays(1, &ID);
     }
@@ -59,11 +58,11 @@ public:
         }
     }
 
-    void bind()
+    void bind() const
     {
         glBindVertexArray(ID);
     }
-    void unbind()
+    void unbind() const
     {
         glBindVertexArray(0);
     }
