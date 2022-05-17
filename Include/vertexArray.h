@@ -1,6 +1,6 @@
 #pragma once
-#include "vertexBuffer.h"
 #include <vector>
+#include "vertexBuffer.h"
 
 struct VertexBufferElement
 {

@@ -1,28 +1,31 @@
+//STD
 #include <iostream>
+#include <array>
+#include <random>
+//OGL
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "shaders/shader.h"
-#include "vertexBuffer.h"
+//Math
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/string_cast.hpp>
+//Custom
+#include "shader.h"
 #include "elementBuffer.h"
 #include "vertexArray.h"
 #include "renderer.h"
 
-//helper functions
-void framebuffer_size_callback(GLFWwindow *window, int width, int height);
-void processInput(GLFWwindow *window);
-GLFWwindow* makeContext(const unsigned int width,const unsigned int height);
-
-// settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 900;
+const unsigned int SCR_HEIGHT = 900;
 
 int main()
 {
-	//Create and set Context window
-	GLFWwindow *window;
+    Renderer renderer;
+    GLFWwindow *window;
 	try
 	{
-		window = makeContext(SCR_WIDTH, SCR_HEIGHT);
+		window = renderer.makeContext(SCR_WIDTH, SCR_HEIGHT);
 	}
 	catch(int e)
 	{
@@ -30,22 +33,24 @@ int main()
 		if (e==-2){std::cout << "Failed to initialize GLAD" << std::endl;}
 	}
 
-	// Make Shader and Renderer
-	Shader shader("./Include/shaders/vertexShader.vs","./Include/shaders/fragmentShader.fs");
-	Renderer renderer;
+    //set vertices (abstract later?)
+    float vertices[] = {
+        // positions          // texture coords
+        900.0f,  900.0f, 0.0f,   // top right
+        900.0f,  0.0f, 0.0f,   // bottom right
+        0.0f,  0.0f, 0.0f,   // bottom left
+        0.0f,  900.0f, 0.0f,   // top left 
+    };
+	unsigned int indices[] = {
+        0, 1, 3, // first triangle
+        1, 2, 3  // second triangle
+    };
 
-	float vertices[] = {
-     1.0f,  1.0f, 0.0f,  // top right
-     1.0f, -1.0f, 0.0f,  // bottom right
-    -1.0f, -1.0f, 0.0f,  // bottom left
-    -1.0f,  1.0f, 0.0f   // top left 
-	};
-	unsigned int indices[] = {  // note that we start from 0!
-		0, 1, 3,   // first triangle
-		1, 2, 3    // second triangle
-	};
+    //Build and Bind shaders
+    Shader shader("./Include/shaderVertex.vs","./Include/shaderFragment.fs");
+    shader.use();
 
-	//Make buffer objects
+    //Make buffer objects
 	VertexArray vao;
 	VertexBuffer vbo(vertices,sizeof(vertices));
 	ElementBuffer ebo(indices,sizeof(indices));
@@ -54,13 +59,15 @@ int main()
     VertexBufferLayout layout;
 	layout.push(3);
 	vao.addVertexBuffer(vbo,layout);
-	
-	// render loop
+
+    //setup projection
+	glm::mat4 projection    = glm::mat4(1.0f);
+	projection = glm::ortho(0.0f, 900.0f, 0.0f, 900.0f, -1.0f, 1.0f);
+	shader.setMat4("projection", projection);
+
+    // render loop
 	while (!glfwWindowShouldClose(window))
 	{
-		// input
-		processInput(window);
-
 		// render
 		renderer.clear();
 		renderer.draw(vao,ebo,shader);
@@ -72,42 +79,4 @@ int main()
 	// glfw: terminate, clearing all previously allocated GLFWresources.
 	glfwTerminate();
 	return 0;
-}
-
-GLFWwindow* makeContext(const unsigned int width,const unsigned int height)
-{
-	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-
-	// glfw window creation
-	GLFWwindow *window = glfwCreateWindow(width, height, "LearnOpenGL", NULL, NULL);
-	if (window == NULL)
-	{
-		glfwTerminate();
-		throw("Failed to create GLFW window");
-		throw(-1);
-	}
-	glfwMakeContextCurrent(window); 
-
-	// glad: load all OpenGL function pointers
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
-		throw("Failed to initialize GLAD\n");
-		throw(-2);
-	}
-	return window;
-}
-
-void processInput(GLFWwindow *window)
-{
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, true);
-}
-
-void framebuffer_size_callback(GLFWwindow *window, int width, int height)
-{
-	glViewport(0, 0, width, height);
 }
