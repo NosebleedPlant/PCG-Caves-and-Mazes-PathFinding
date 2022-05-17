@@ -96,16 +96,12 @@ public:
             glDeleteShader(geometry);
 
     }
-
-    
     // activate the shader
     // ------------------------------------------------------------------------
-    void use() const
+    void use() 
     { 
         glUseProgram(ID); 
     }
-
-
     // utility uniform functions
     // ------------------------------------------------------------------------
     void setBool(const std::string &name, bool value) const
@@ -167,6 +163,7 @@ public:
 
 private:
     // utility function for checking shader compilation/linking errors.
+    // ------------------------------------------------------------------------
     void checkCompileErrors(GLuint shader, std::string type)
     {
         GLint success;

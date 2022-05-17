@@ -20,7 +20,6 @@ struct Renderer
         if (window == NULL)
         {
             glfwTerminate();
-            throw("Failed to create GLFW window");
             throw(-1);
         }
         glfwMakeContextCurrent(window); 
@@ -28,23 +27,8 @@ struct Renderer
         // glad: load all OpenGL function pointers
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         {
-            throw("Failed to initialize GLAD\n");
             throw(-2);
         }
         return window;
     }
-
-    //Clears screen
-    void clear()
-    {
-        glClear(GL_COLOR_BUFFER_BIT);
-    }
-
-    //Draw Triangles Command
-    void draw(const VertexArray& vao,const ElementBuffer& ebo,const Shader& shader) const
-    {
-        vao.bind();
-        glDrawElements(GL_TRIANGLES, ebo.getCount(), GL_UNSIGNED_INT, 0);
-    }
-
 };

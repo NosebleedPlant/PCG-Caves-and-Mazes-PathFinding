@@ -29,17 +29,17 @@ int main()
 	}
 	catch(int e)
 	{
-		if (e==-1){std::cout << "Failed to create GLFW window" << std::endl;}
-		if (e==-2){std::cout << "Failed to initialize GLAD" << std::endl;}
+		if (e==-1){std::cout << "Failed to create GLFW window" << std::endl;glfwTerminate();return -1;}
+		if (e==-2){std::cout << "Failed to initialize GLAD" << std::endl;glfwTerminate();return -1;}
 	}
 
     //set vertices (abstract later?)
     float vertices[] = {
         // positions          // texture coords
-        900.0f,  900.0f, 0.0f,   // top right
-        900.0f,  0.0f, 0.0f,   // bottom right
+        10.0f,  10.0f, 0.0f,   // top right
+        10.0f,  0.0f, 0.0f,   // bottom right
         0.0f,  0.0f, 0.0f,   // bottom left
-        0.0f,  900.0f, 0.0f,   // top left 
+        0.0f,  10.0f, 0.0f,   // top left 
     };
 	unsigned int indices[] = {
         0, 1, 3, // first triangle
@@ -62,19 +62,36 @@ int main()
 
     //setup projection
 	glm::mat4 projection    = glm::mat4(1.0f);
-	projection = glm::ortho(0.0f, 900.0f, 0.0f, 900.0f, -1.0f, 1.0f);
+	projection = glm::ortho(0.0f, 900.0f, 900.0f, 000.0f, -1.0f, 1.0f);
 	shader.setMat4("projection", projection);
+	///test
+	shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.2f, 1.0f));
+	glm::mat4 translation;
 
     // render loop
+	int i=0;
 	while (!glfwWindowShouldClose(window))
-	{
+	{		
 		// render
-		renderer.clear();
-		renderer.draw(vao,ebo,shader);
+		glClear(GL_COLOR_BUFFER_BIT);
+		vao.bind();
+		
+		//prints map
+		for (size_t y = 0; y < 90; y++)
+		{
+			for (size_t x = 0; x < 90; x++)
+			{
+				translation = glm::translate(glm::mat4(1), glm::vec3(10.0f*x, 10.0f*y, 0.0f));
+				shader.setMat4("translation", translation);
+				glDrawElements(GL_TRIANGLES, ebo.getCount(), GL_UNSIGNED_INT, 0);
+			}
+		}
+		
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(window);
 		glfwPollEvents();
+		i++;
 	}
 	// glfw: terminate, clearing all previously allocated GLFWresources.
 	glfwTerminate();
