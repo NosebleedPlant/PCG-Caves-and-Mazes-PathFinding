@@ -1,23 +1,22 @@
 //STD
 #include <iostream>
-#include <array>
-#include <random>
 //OGL
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 //Math
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/string_cast.hpp>
 //Custom
 #include "shader.h"
 #include "elementBuffer.h"
 #include "vertexArray.h"
 #include "renderer.h"
+#include "map.h"
 
 const unsigned int SCR_WIDTH = 900;
 const unsigned int SCR_HEIGHT = 900;
+const glm::vec3 DEAD_COLOR = glm::vec3(1.0f, 0.5f, 0.2f);
+const glm::vec3 ALIVE_COLOR = glm::vec3(0.2f, 0.3f, 0.3f);
 
 int main()
 {
@@ -33,13 +32,13 @@ int main()
 		if (e==-2){std::cout << "Failed to initialize GLAD" << std::endl;glfwTerminate();return -1;}
 	}
 
-    //set vertices (abstract later?)
+    //set vertices
     float vertices[] = {
-        // positions          // texture coords
+        // positions
         10.0f,  10.0f, 0.0f,   // top right
-        10.0f,  0.0f, 0.0f,   // bottom right
-        0.0f,  0.0f, 0.0f,   // bottom left
-        0.0f,  10.0f, 0.0f,   // top left 
+        10.0f,  0.0f, 0.0f,    // bottom right
+        0.0f,  0.0f, 0.0f,     // bottom left
+        0.0f,  10.0f, 0.0f,    // top left 
     };
 	unsigned int indices[] = {
         0, 1, 3, // first triangle
@@ -64,12 +63,16 @@ int main()
 	glm::mat4 projection    = glm::mat4(1.0f);
 	projection = glm::ortho(0.0f, 900.0f, 900.0f, 000.0f, -1.0f, 1.0f);
 	shader.setMat4("projection", projection);
-	///test
-	shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.2f, 1.0f));
+	
+	///Uniform variable declerations
+	glm::vec3 color(1.0f, 0.5f, 0.2f);
 	glm::mat4 translation;
 
+	//test
+	Map<90,90> map(DEAD_COLOR, ALIVE_COLOR);
+	//std::cout<<map;
+
     // render loop
-	int i=0;
 	while (!glfwWindowShouldClose(window))
 	{		
 		// render
@@ -81,8 +84,9 @@ int main()
 		{
 			for (size_t x = 0; x < 90; x++)
 			{
-				translation = glm::translate(glm::mat4(1), glm::vec3(10.0f*x, 10.0f*y, 0.0f));
+				translation = glm::translate(glm::mat4(1), glm::vec3(10.0f*x, 10.0f*y, 0.0f));//set transform of cell
 				shader.setMat4("translation", translation);
+				shader.setVec3("color", map.getCell(x,y));//set color
 				glDrawElements(GL_TRIANGLES, ebo.getCount(), GL_UNSIGNED_INT, 0);
 			}
 		}
@@ -91,7 +95,6 @@ int main()
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(window);
 		glfwPollEvents();
-		i++;
 	}
 	// glfw: terminate, clearing all previously allocated GLFWresources.
 	glfwTerminate();
