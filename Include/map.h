@@ -13,10 +13,20 @@ private:
     std::array<std::array<glm::vec3,WIDTH>,HEIGHT> grid;
 public:
     //constructor class randomply populates the map
-    Map(glm::vec3 dead, glm::vec3 alive, unsigned int threshold = 50)
+    Map(glm::vec3 dead, glm::vec3 alive)
         :dead_color(dead),alive_color(alive)
+    {}
+
+    void generateCaves(unsigned int step_count,unsigned int death_limit,unsigned int birth_limit,//smoothing params
+                       unsigned int threshold=50)//initalize param
     {
         randomPopulate(threshold);
+
+        for (size_t i = 0; i < step_count; i++)
+        {
+            smoothMap(death_limit,birth_limit);
+        }
+        
     }
 
     //random population function that lets user set probability threshold from 1-100
@@ -35,20 +45,27 @@ public:
                 if(x==0||x==WIDTH-1||y==0||y==HEIGHT-1)
                     grid[y][x] = dead_color;
                 else
-                    grid[y][x] = distribution(generate)<50? dead_color:alive_color;
+                    grid[y][x] = distribution(generate)<50? alive_color:dead_color;
             }
         }
     }
 
-    void SmoothMap()
+    void smoothMap(unsigned int death_limit,unsigned int birth_limit)
     {
-        for (size_t y = 0; y < HEIGHT; y++)
+        std::array<std::array<glm::vec3,WIDTH>,HEIGHT> post_smoothing(grid);
+        for (size_t y = 1; y < HEIGHT-1; y++)
         {
-            for (size_t x = 0; x < WIDTH; x++)
+            for (size_t x = 1; x < WIDTH-1; x++)
             {
-                
+                glm::vec3 current_cell = grid[y][x];
+                unsigned int ngbrs = getNeighbourCount(x,y);
+                if(current_cell == alive_color && ngbrs<death_limit)
+                    post_smoothing[y][x]=dead_color;//if alive but too few neighbours then dead                        
+                else if(ngbrs>birth_limit)
+                    post_smoothing[y][x]=alive_color;//if dead but too many neighbours then alive
             }
         }
+        grid = post_smoothing;
     }
     
     //GETTERS:
@@ -56,9 +73,20 @@ public:
     {
         return grid[y][x];
     }
-    const unsigned int getWallCount(const unsigned int x, const unsigned int y) const
+    const unsigned int getNeighbourCount(const unsigned int o_x, const unsigned int o_y) const
     {
-        //IMPLEMENT THIS!!!!
+        unsigned int neighbour_count = 0;
+        for (size_t y = o_y-1; y <= o_y+1; y++)
+        {
+            for (size_t x = o_x-1; x <= o_x+1; x++)
+            {
+                if((x!=o_x || y!=o_y) && grid[y][x] == alive_color)
+                {
+                    neighbour_count++;
+                }
+            }
+        }
+        return neighbour_count;
     }
 
     //SETTERS:

@@ -1,5 +1,6 @@
 //STD
 #include <iostream>
+#include <string.h>
 //OGL
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -13,13 +14,26 @@
 #include "renderer.h"
 #include "map.h"
 
-const unsigned int SCR_WIDTH = 900;
-const unsigned int SCR_HEIGHT = 900;
-const glm::vec3 DEAD_COLOR = glm::vec3(1.0f, 0.5f, 0.2f);
-const glm::vec3 ALIVE_COLOR = glm::vec3(0.2f, 0.3f, 0.3f);
+const unsigned int SCR_WIDTH = 910;
+const unsigned int SCR_HEIGHT = 910;
+const unsigned int GRID_WIDTH = SCR_WIDTH/10;
+const unsigned int GRID_HEIGHT = SCR_HEIGHT/10;
+const glm::vec3 DEAD_COLOR = glm::vec3(0.2f, 0.3f, 0.3f);//green
+const glm::vec3 ALIVE_COLOR = glm::vec3(1.0f, 0.5f, 0.2f);//orange
 
-int main()
+int main(int argc,char* argv[])
 {
+	std::string flag;
+	if(argc <2)
+	{
+		std::cout << "Please specify flag" << std::endl;
+		std::cout << "-Caves: generates caves" << std::endl;
+		std::cout << "-Maze: generates maze" << std::endl;
+		return -1;
+	}
+	else
+	{flag = std::string(argv[1]);}
+		
     Renderer renderer;
     GLFWwindow *window;
 	try
@@ -29,7 +43,7 @@ int main()
 	catch(int e)
 	{
 		if (e==-1){std::cout << "Failed to create GLFW window" << std::endl;glfwTerminate();return -1;}
-		if (e==-2){std::cout << "Failed to initialize GLAD" << std::endl;glfwTerminate();return -1;}
+		else if (e==-2){std::cout << "Failed to initialize GLAD" << std::endl;glfwTerminate();return -1;}
 	}
 
     //set vertices
@@ -61,16 +75,21 @@ int main()
 
     //setup projection
 	glm::mat4 projection    = glm::mat4(1.0f);
-	projection = glm::ortho(0.0f, 900.0f, 900.0f, 000.0f, -1.0f, 1.0f);
+	projection = glm::ortho(0.0f, 910.0f, 910.0f, 000.0f, -1.0f, 1.0f);
 	shader.setMat4("projection", projection);
 	
 	///Uniform variable declerations
-	glm::vec3 color(1.0f, 0.5f, 0.2f);
 	glm::mat4 translation;
 
-	//test
-	Map<90,90> map(DEAD_COLOR, ALIVE_COLOR);
-	//std::cout<<map;
+	Map<GRID_WIDTH,GRID_HEIGHT> map(DEAD_COLOR, ALIVE_COLOR);
+	if(flag=="-Maze")
+	{
+		std::cout<<"Under Construction"<< std::endl;
+		glfwTerminate();
+		return -1;
+	}
+	else if(flag=="-Caves")
+	{map.generateCaves(4,4,4,40);}
 
     // render loop
 	while (!glfwWindowShouldClose(window))
@@ -80,9 +99,9 @@ int main()
 		vao.bind();
 		
 		//prints map
-		for (size_t y = 0; y < 90; y++)
+		for (size_t y = 0; y < GRID_HEIGHT; y++)
 		{
-			for (size_t x = 0; x < 90; x++)
+			for (size_t x = 0; x < GRID_WIDTH; x++)
 			{
 				translation = glm::translate(glm::mat4(1), glm::vec3(10.0f*x, 10.0f*y, 0.0f));//set transform of cell
 				shader.setMat4("translation", translation);
@@ -90,7 +109,6 @@ int main()
 				glDrawElements(GL_TRIANGLES, ebo.getCount(), GL_UNSIGNED_INT, 0);
 			}
 		}
-		
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(window);
