@@ -11,18 +11,36 @@
 #include "shader.h"
 #include "elementBuffer.h"
 #include "vertexArray.h"
-#include "renderer.h"
+#include "contextManager.h"
 #include "map.h"
+#include "pathFinder.h"
 
+//SETTING CONSTANTS:
 const unsigned int SCR_WIDTH = 910;
 const unsigned int SCR_HEIGHT = 910;
 const unsigned int GRID_WIDTH = SCR_WIDTH/10;
 const unsigned int GRID_HEIGHT = SCR_HEIGHT/10;
-const glm::vec3 DEAD_COLOR = glm::vec3(0.2f, 0.3f, 0.3f);//green
-const glm::vec3 ALIVE_COLOR = glm::vec3(1.0f, 0.5f, 0.2f);//orange
+const glm::vec3 DEAD_COLOR = glm::vec3(0.2f, 0.3f, 0.3f);		//green
+const glm::vec3 ALIVE_COLOR = glm::vec3(1.0f, 0.5f, 0.2f);		//orange
+const glm::vec3 SELECTION_COLOR = glm::vec3(1.0f, 1.0f, 0.0f);	//yellow
+const glm::mat4 projection = glm::ortho(0.0f, float(SCR_WIDTH), float(SCR_HEIGHT), 000.0f, -1.0f, 1.0f);//projection matrix
+//Verticies for Gird Cell
+const float vertices[] = {
+	// positions
+	10.0f,  10.0f, 0.0f,   // top right
+	10.0f,  0.0f, 0.0f,    // bottom right
+	0.0f,  0.0f, 0.0f,     // bottom left
+	0.0f,  10.0f, 0.0f,    // top left 
+};
+const unsigned int indices[] = {
+	0, 1, 3, // first triangle
+	1, 2, 3  // second triangle
+};
 
+//MAIN LOOP:
 int main(int argc,char* argv[])
 {
+	//SECTION 1: CHECK RUNTIME FLAGS
 	std::string flag;
 	if(argc <2)
 	{
@@ -33,31 +51,19 @@ int main(int argc,char* argv[])
 	}
 	else
 	{flag = std::string(argv[1]);}
-		
-    Renderer renderer;
+	
+	//SECTION 2: OPENGL SETUP
+    ContextManager contextManager;
     GLFWwindow *window;
 	try
 	{
-		window = renderer.makeContext(SCR_WIDTH, SCR_HEIGHT);
+		window = contextManager.makeContext(SCR_WIDTH, SCR_HEIGHT);
 	}
 	catch(int e)
 	{
 		if (e==-1){std::cout << "Failed to create GLFW window" << std::endl;glfwTerminate();return -1;}
 		else if (e==-2){std::cout << "Failed to initialize GLAD" << std::endl;glfwTerminate();return -1;}
 	}
-
-    //set vertices
-    float vertices[] = {
-        // positions
-        10.0f,  10.0f, 0.0f,   // top right
-        10.0f,  0.0f, 0.0f,    // bottom right
-        0.0f,  0.0f, 0.0f,     // bottom left
-        0.0f,  10.0f, 0.0f,    // top left 
-    };
-	unsigned int indices[] = {
-        0, 1, 3, // first triangle
-        1, 2, 3  // second triangle
-    };
 
     //Build and Bind shaders
     Shader shader("./Include/shaderVertex.vs","./Include/shaderFragment.fs");
@@ -74,24 +80,24 @@ int main(int argc,char* argv[])
 	vao.addVertexBuffer(vbo,layout);
 
     //setup projection
-	glm::mat4 projection    = glm::mat4(1.0f);
-	projection = glm::ortho(0.0f, 910.0f, 910.0f, 000.0f, -1.0f, 1.0f);
 	shader.setMat4("projection", projection);
-	
-	///Uniform variable declerations
-	glm::mat4 translation;
 
-	Map<GRID_WIDTH,GRID_HEIGHT> map(DEAD_COLOR, ALIVE_COLOR);
+	//SECTION 3: CAVE GENERATION
+	Map map(GRID_WIDTH,GRID_HEIGHT,DEAD_COLOR, ALIVE_COLOR);
 	if(flag=="-Maze")
 	{
 		std::cout<<"Under Construction"<< std::endl;
-		glfwTerminate();
 		return -1;
 	}
 	else if(flag=="-Caves")
 	{map.generateCaves(4,4,4,40);}
 
-    // render loop
+	//SECTION 4: PATH FINDING
+	PathFinder pathFinder;
+
+    // SECTION 4: VISUALIZATION
+	int frame_count = 0;
+	glm::mat4 translation;//translation matrix initialization for redering grid cells
 	while (!glfwWindowShouldClose(window))
 	{		
 		// render
@@ -112,7 +118,10 @@ int main(int argc,char* argv[])
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(window);
-		glfwPollEvents();
+		glfwWaitEvents();
+		if(contextManager.handleMouseClick(map,SELECTION_COLOR) == 1)
+			pathFinder.flood_fill(map);
+
 	}
 	// glfw: terminate, clearing all previously allocated GLFWresources.
 	glfwTerminate();

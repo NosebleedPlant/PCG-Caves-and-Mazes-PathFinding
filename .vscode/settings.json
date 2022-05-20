@@ -68,7 +68,9 @@
         "cstdarg": "cpp",
         "functional": "cpp",
         "unordered_map": "cpp",
-        "xhash": "cpp"
+        "xhash": "cpp",
+        "deque": "cpp",
+        "queue": "cpp"
     },
     "cmake.configureOnOpen": false
 }

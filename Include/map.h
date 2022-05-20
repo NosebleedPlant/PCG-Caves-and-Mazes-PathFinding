@@ -1,78 +1,69 @@
 #pragma once
 #include <glm/glm.hpp>
 #include <glm/gtx/string_cast.hpp>
-#include <array>
+#include <vector>
+#include <queue>
 #include <random>
 #include <iostream>
 
-template<int WIDTH,int HEIGHT>
+using Coordinate = std::pair<int,int>;
+using Grid = std::vector<std::vector<glm::vec3>>;
+
 class Map
 {
 private:
+    const int WIDTH,HEIGHT;
     glm::vec3 dead_color,alive_color;
-    std::array<std::array<glm::vec3,WIDTH>,HEIGHT> grid;
+    std::vector<Coordinate> start_end;
+    Grid grid;
 public:
     //constructor class randomply populates the map
-    Map(glm::vec3 dead, glm::vec3 alive)
-        :dead_color(dead),alive_color(alive)
-    {}
+    Map(int width,int height,glm::vec3 dead, glm::vec3 alive);
 
+    //generates caves using cellular automata
     void generateCaves(unsigned int step_count,unsigned int death_limit,unsigned int birth_limit,//smoothing params
-                       unsigned int threshold=50)//initalize param
-    {
-        randomPopulate(threshold);
-
-        for (size_t i = 0; i < step_count; i++)
-        {
-            smoothMap(death_limit,birth_limit);
-        }
-        
-    }
+                       unsigned int threshold=50);//initalize param
 
     //random population function that lets user set probability threshold from 1-100
     //ensures edges are dead
-    void randomPopulate(unsigned int threshold)
-    {
-        //setup random seed
-        std::random_device seed;
-        std::mt19937 generate(seed());
-        std::uniform_int_distribution<> distribution(1, 100);
+    void randomPopulate(unsigned int threshold);
 
-        for (size_t y = 0; y < HEIGHT; y++)
-        {
-            for (size_t x = 0; x < WIDTH; x++)
-            {
-                if(x==0||x==WIDTH-1||y==0||y==HEIGHT-1)
-                    grid[y][x] = dead_color;
-                else
-                    grid[y][x] = distribution(generate)<50? alive_color:dead_color;
-            }
-        }
-    }
+    //smoothing function denioses based on cellular automata rules
+    void smoothMap(unsigned int death_limit,unsigned int birth_limit);
 
-    void smoothMap(unsigned int death_limit,unsigned int birth_limit)
+    //OPERATOR OVERLOADS
+    friend std::ostream &operator<<(std::ostream &os,const Map &map);
+
+    //SETTERS:
+    void setCell(const unsigned int x, const unsigned int y,glm::vec3 newValue)//change color of cell
+    {grid[y][x] = newValue;}
+    
+    void setCell(Coordinate loc,glm::vec3 newValue)//change color of cell
+    {grid[loc.second][loc.first] = newValue;}//because outside is y inside is x
+
+    int setStartEnd(const unsigned int x, const unsigned int y,glm::vec3 newValue)//change color and set start or end point variable
     {
-        std::array<std::array<glm::vec3,WIDTH>,HEIGHT> post_smoothing(grid);
-        for (size_t y = 1; y < HEIGHT-1; y++)
+        if(grid[y][x]==alive_color && start_end.size()<2)
         {
-            for (size_t x = 1; x < WIDTH-1; x++)
-            {
-                glm::vec3 current_cell = grid[y][x];
-                unsigned int ngbrs = getNeighbourCount(x,y);
-                if(current_cell == alive_color && ngbrs<death_limit)
-                    post_smoothing[y][x]=dead_color;//if alive but too few neighbours then dead                        
-                else if(ngbrs>birth_limit)
-                    post_smoothing[y][x]=alive_color;//if dead but too many neighbours then alive
-            }
+            grid[y][x] = newValue;
+            start_end.push_back(Coordinate(x,y));
+            
+            if(start_end.size()==2) 
+            {return 1;}
         }
-        grid = post_smoothing;
+        return 0;
     }
     
     //GETTERS:
-    inline const glm::vec3 getCell(const unsigned int x, const unsigned int y)const
-    {
-        return grid[y][x];
-    }
+    const glm::vec3 getCell(const unsigned int x, const unsigned int y)const
+    {return grid[y][x];}
+
+    const glm::vec3 getCell(Coordinate loc)const
+    {return grid[loc.second][loc.first];}
+
+    std::vector<Coordinate> getStart_end() const 
+    {return start_end;} 
+
     const unsigned int getNeighbourCount(const unsigned int o_x, const unsigned int o_y) const
     {
         unsigned int neighbour_count = 0;
@@ -81,36 +72,27 @@ public:
             for (size_t x = o_x-1; x <= o_x+1; x++)
             {
                 if((x!=o_x || y!=o_y) && grid[y][x] == alive_color)
-                {
-                    neighbour_count++;
-                }
+                    {neighbour_count++;}
             }
         }
         return neighbour_count;
     }
 
-    //SETTERS:
-    void setCell(const unsigned int x, const unsigned int y,glm::vec3 newValue)
+    void getNeighbours(const Coordinate loc, std::queue<Coordinate> &que, glm::vec3 cmpr_color) const
     {
-        grid[y][x] = newValue;
-    }
-
-    //OVERLOADS
-    friend std::ostream &operator<<(std::ostream &os,const Map &map)
-    {
-        for (size_t y = 0; y < HEIGHT; y++)
+        unsigned int i_x = loc.first, i_y = loc.second;
+        std::vector<Coordinate> neighbours;
+        for (size_t y = i_y-1; y <= i_y+1; y++)
         {
-            for (size_t x = 0; x < WIDTH; x++)
+            for (size_t x = i_x-1; x <= i_x+1; x++)
             {
-                if (map.grid[y][x]==map.dead_color)
-                    os<<0;
-                else if (map.grid[y][x]==map.alive_color)
-                    os<<1;
-                else
-                    os<<"error!";
+                if(!(x==i_x && y==i_y) 
+                    && (grid[y][x] != dead_color))
+                {
+                    que.push(Coordinate(x,y));
+                    std::cout<<x<<","<<y<<std::endl;
+                }
             }
-            os<<std::endl;
         }
-        return os;
     }
 };
