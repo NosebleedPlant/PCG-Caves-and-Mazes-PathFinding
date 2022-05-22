@@ -16,6 +16,7 @@ void Map::randomPopulate(unsigned int threshold)
     //setup random seed
     std::random_device seed;
     std::mt19937 generate(seed());
+    //std::mt19937 generate(1998);
     std::uniform_int_distribution<> distribution(1, 100);
 
     for (size_t y = 0; y < HEIGHT; y++)
@@ -47,6 +48,7 @@ void Map::smoothMap(unsigned int death_limit,unsigned int birth_limit)
         }
     }
     grid = post_smoothing;
+    recovery_grid = post_smoothing;
 }
 
 //OPERATOR OVERLOADS

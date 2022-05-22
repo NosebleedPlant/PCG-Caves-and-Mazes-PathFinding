@@ -6,11 +6,13 @@ class ContextManager
 private:
     const unsigned int INPUT_LIMIT = 2;
     unsigned int input_count = 0;
+    unsigned int cell_dim;
     GLFWwindow* window;
 public:  
     //Creates a new context with given parameters
-    GLFWwindow* makeContext(const unsigned int width,const unsigned int height)
+    GLFWwindow* makeContext(const unsigned int width,const unsigned int height,unsigned int dim)
     {
+        cell_dim = dim;
         glfwInit();
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -35,17 +37,16 @@ public:
     }
 
     //Handle mouse click Coordinates
-    int handleMouseClick(Map &map,glm::vec3 color)
+    bool handleMouseClick(Map &map,glm::vec3 color)
     {
         int coord[]= {-1,-1};
         if(glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && input_count<INPUT_LIMIT) 
         {
-            //getting cursor position
             double xpos,ypos;
             glfwGetCursorPos(window, &xpos, &ypos);
-            if (map.setStartEnd(xpos/10,ypos/10,color)==1)
-            {return 1;}
+            if (map.setStartEnd(xpos/cell_dim,ypos/cell_dim,color)==true)
+            {return true;}
         }
-        return 0;
+        return false;
     }
 };

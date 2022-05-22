@@ -18,19 +18,21 @@
 //SETTING CONSTANTS:
 const unsigned int SCR_WIDTH = 910;
 const unsigned int SCR_HEIGHT = 910;
-const unsigned int GRID_WIDTH = SCR_WIDTH/10;
-const unsigned int GRID_HEIGHT = SCR_HEIGHT/10;
+const unsigned int CELL_DIM = 10;
+const unsigned int GRID_WIDTH = SCR_WIDTH/CELL_DIM;
+const unsigned int GRID_HEIGHT = SCR_HEIGHT/CELL_DIM;
 const glm::vec3 DEAD_COLOR = glm::vec3(0.2f, 0.3f, 0.3f);		//green
 const glm::vec3 ALIVE_COLOR = glm::vec3(1.0f, 0.5f, 0.2f);		//orange
 const glm::vec3 SELECTION_COLOR = glm::vec3(1.0f, 1.0f, 0.0f);	//yellow
+const glm::vec3 FLOOD_COLOR = glm::vec3(0.0f, 1.0f, 0.0f);		//green
 const glm::mat4 projection = glm::ortho(0.0f, float(SCR_WIDTH), float(SCR_HEIGHT), 000.0f, -1.0f, 1.0f);//projection matrix
 //Verticies for Gird Cell
 const float vertices[] = {
 	// positions
-	10.0f,  10.0f, 0.0f,   // top right
-	10.0f,  0.0f, 0.0f,    // bottom right
+	float(CELL_DIM),  float(CELL_DIM), 0.0f,   // top right
+	float(CELL_DIM),  0.0f, 0.0f,    // bottom right
 	0.0f,  0.0f, 0.0f,     // bottom left
-	0.0f,  10.0f, 0.0f,    // top left 
+	0.0f,  float(CELL_DIM), 0.0f,    // top left 
 };
 const unsigned int indices[] = {
 	0, 1, 3, // first triangle
@@ -57,7 +59,7 @@ int main(int argc,char* argv[])
     GLFWwindow *window;
 	try
 	{
-		window = contextManager.makeContext(SCR_WIDTH, SCR_HEIGHT);
+		window = contextManager.makeContext(SCR_WIDTH, SCR_HEIGHT,CELL_DIM);
 	}
 	catch(int e)
 	{
@@ -93,11 +95,12 @@ int main(int argc,char* argv[])
 	{map.generateCaves(4,4,4,40);}
 
 	//SECTION 4: PATH FINDING
-	PathFinder pathFinder;
+	PathFinder pathFinder(GRID_WIDTH,GRID_HEIGHT);
 
     // SECTION 4: VISUALIZATION
 	int frame_count = 0;
 	glm::mat4 translation;//translation matrix initialization for redering grid cells
+
 	while (!glfwWindowShouldClose(window))
 	{		
 		// render
@@ -109,7 +112,7 @@ int main(int argc,char* argv[])
 		{
 			for (size_t x = 0; x < GRID_WIDTH; x++)
 			{
-				translation = glm::translate(glm::mat4(1), glm::vec3(10.0f*x, 10.0f*y, 0.0f));//set transform of cell
+				translation = glm::translate(glm::mat4(1), glm::vec3(float(CELL_DIM)*x, float(CELL_DIM)*y, 0.0f));//set transform of cell
 				shader.setMat4("translation", translation);
 				shader.setVec3("color", map.getCell(x,y));//set color
 				glDrawElements(GL_TRIANGLES, ebo.getCount(), GL_UNSIGNED_INT, 0);
@@ -119,9 +122,17 @@ int main(int argc,char* argv[])
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(window);
 		glfwWaitEvents();
-		if(contextManager.handleMouseClick(map,SELECTION_COLOR) == 1)
-			pathFinder.flood_fill(map);
-
+		
+		//Check for start_end input
+		if(contextManager.handleMouseClick(map,SELECTION_COLOR) == true)
+		{
+			//if start_end provided, conduct pathing
+			if(pathFinder.flood_fill(map,FLOOD_COLOR)==true)
+			{
+				pathFinder.aStar(map);
+				map.setStartEndCells(SELECTION_COLOR);
+			}
+		}
 	}
 	// glfw: terminate, clearing all previously allocated GLFWresources.
 	glfwTerminate();
