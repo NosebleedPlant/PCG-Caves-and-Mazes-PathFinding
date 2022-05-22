@@ -4,8 +4,6 @@
 class ContextManager
 {
 private:
-    const unsigned int INPUT_LIMIT = 2;
-    unsigned int input_count = 0;
     unsigned int cell_dim;
     GLFWwindow* window;
 public:  
@@ -40,7 +38,7 @@ public:
     bool handleMouseClick(Map &map,glm::vec3 color)
     {
         int coord[]= {-1,-1};
-        if(glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && input_count<INPUT_LIMIT) 
+        if(glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) 
         {
             double xpos,ypos;
             glfwGetCursorPos(window, &xpos, &ypos);

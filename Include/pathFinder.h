@@ -33,7 +33,7 @@ class PathFinder
 {
 private:
     const int WIDTH,HEIGHT;
-    const int D1=1,D2=1;
+    const int D1=1,D2=2;
 public:
     PathFinder(int width,int height)
         :WIDTH(width),HEIGHT(height)
