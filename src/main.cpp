@@ -12,27 +12,28 @@
 #include "elementBuffer.h"
 #include "vertexArray.h"
 #include "contextManager.h"
-#include "map.h"
+#include "GMap.h"
 #include "pathFinder.h"
 
 //SETTING CONSTANTS:
-const unsigned int SCR_WIDTH = 910;
-const unsigned int SCR_HEIGHT = 910;
+const unsigned int SCR_DIM = 910;
 const unsigned int CELL_DIM = 10;
-const unsigned int GRID_WIDTH = SCR_WIDTH/CELL_DIM;
-const unsigned int GRID_HEIGHT = SCR_HEIGHT/CELL_DIM;
-const glm::vec3 DEAD_COLOR = glm::vec3(0.2f, 0.3f, 0.3f);		//green
-const glm::vec3 ALIVE_COLOR = glm::vec3(1.0f, 0.5f, 0.2f);		//orange
-const glm::vec3 SELECTION_COLOR = glm::vec3(1.0f, 1.0f, 0.0f);	//yellow
-const glm::vec3 FLOOD_COLOR = glm::vec3(0.0f, 1.0f, 0.0f);		//green
-const glm::mat4 projection = glm::ortho(0.0f, float(SCR_WIDTH), float(SCR_HEIGHT), 000.0f, -1.0f, 1.0f);//projection matrix
+const unsigned int GRID_DIM = SCR_DIM/CELL_DIM;
+const glm::vec3 DEAD_COLOR = glm::vec3(0.04f, 0.15f, 0.21f);		//deep blue #0a2635
+const glm::vec3 ALIVE_COLOR = glm::vec3(0.09f, 0.41f, 0.25f);		//green #166841
+const glm::vec3 SELECTION_COLOR = glm::vec3(0.90f, 0.87f, 0.81f);	//off-white #F2EFE9
+const glm::vec3 FLOOD_COLOR = glm::vec3(0.96f, 0.38f, 0.22f);		//orange #f56038
+const glm::vec3 AS_OPENED_COLOR = glm::vec3(1.00f, 0.79f, 0.48f);	//pale yellow #ffca7a
+const glm::vec3 AS_CLOSED_COLOR = glm::vec3(0.97f, 0.64f, 0.15f);	//orange yellow #f7a325
+const glm::vec3 AS_OPTIMAL_COLOR = glm::vec3(0.57f, 0.91f, 0.90f);	//teal #92e7e5
+const glm::mat4 projection = glm::ortho(0.0f, float(SCR_DIM), float(SCR_DIM), 000.0f, -1.0f, 1.0f);//projection matrix
 //Verticies for Gird Cell
 const float vertices[] = {
 	// positions
-	float(CELL_DIM),  float(CELL_DIM), 0.0f,   // top right
-	float(CELL_DIM),  0.0f, 0.0f,    // bottom right
-	0.0f,  0.0f, 0.0f,     // bottom left
-	0.0f,  float(CELL_DIM), 0.0f,    // top left 
+	float(CELL_DIM),  	float(CELL_DIM), 	0.0f,   // top right
+	float(CELL_DIM),  	0.0f, 				0.0f,    // bottom right
+	0.0f,  				0.0f, 				0.0f,     // bottom left
+	0.0f,  				float(CELL_DIM), 	0.0f,    // top left 
 };
 const unsigned int indices[] = {
 	0, 1, 3, // first triangle
@@ -59,7 +60,7 @@ int main(int argc,char* argv[])
     GLFWwindow *window;
 	try
 	{
-		window = contextManager.makeContext(SCR_WIDTH, SCR_HEIGHT,CELL_DIM);
+		window = contextManager.makeContext(SCR_DIM, SCR_DIM,CELL_DIM);
 	}
 	catch(int e)
 	{
@@ -85,7 +86,7 @@ int main(int argc,char* argv[])
 	shader.setMat4("projection", projection);
 
 	//SECTION 3: CAVE GENERATION
-	Map map(GRID_WIDTH,GRID_HEIGHT,DEAD_COLOR, ALIVE_COLOR);
+	GMap map(GRID_DIM,DEAD_COLOR, ALIVE_COLOR);
 	if(flag=="-Maze")
 	{
 		std::cout<<"Under Construction"<< std::endl;
@@ -95,7 +96,7 @@ int main(int argc,char* argv[])
 	{map.generateCaves(4,4,4,40);}
 
 	//SECTION 4: PATH FINDING
-	PathFinder pathFinder(GRID_WIDTH,GRID_HEIGHT);
+	PathFinder pathFinder(AS_OPENED_COLOR,AS_CLOSED_COLOR,AS_OPTIMAL_COLOR);
 
     // SECTION 4: VISUALIZATION
 	int frame_count = 0;
@@ -108,9 +109,9 @@ int main(int argc,char* argv[])
 		vao.bind();
 		
 		//prints map
-		for (size_t y = 0; y < GRID_HEIGHT; y++)
+		for (size_t y = 0; y < GRID_DIM; y++)
 		{
-			for (size_t x = 0; x < GRID_WIDTH; x++)
+			for (size_t x = 0; x < GRID_DIM; x++)
 			{
 				translation = glm::translate(glm::mat4(1), glm::vec3(float(CELL_DIM)*x, float(CELL_DIM)*y, 0.0f));//set transform of cell
 				shader.setMat4("translation", translation);
@@ -130,8 +131,8 @@ int main(int argc,char* argv[])
 			if(pathFinder.flood_fill(map,FLOOD_COLOR)==true)
 			{
 				pathFinder.aStar(map);
-				map.setStartEndCells(SELECTION_COLOR);
 			}
+			map.setStartEndCells(SELECTION_COLOR);
 		}
 	}
 	// glfw: terminate, clearing all previously allocated GLFWresources.

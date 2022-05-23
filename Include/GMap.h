@@ -9,16 +9,16 @@
 using Coordinate = std::pair<int,int>;
 using Grid = std::vector<std::vector<glm::vec3>>;
 
-class Map
+class GMap
 {
 private:
-    const int WIDTH,HEIGHT;
-    glm::vec3 dead_color,alive_color;
+    const glm::vec3 dead_color,alive_color;
     std::vector<Coordinate> start_end;
     Grid grid,recovery_grid;
 public:
+    const int DIM;
     //constructor class randomply populates the map
-    Map(int width,int height,glm::vec3 dead, glm::vec3 alive);
+    GMap(int dim,glm::vec3 dead, glm::vec3 alive);
 
     //generates caves using cellular automata
     void generateCaves(unsigned int step_count,unsigned int death_limit,unsigned int birth_limit,//smoothing params
@@ -32,7 +32,7 @@ public:
     void smoothMap(unsigned int death_limit,unsigned int birth_limit);
 
     //OPERATOR OVERLOADS
-    friend std::ostream &operator<<(std::ostream &os,const Map &map);
+    friend std::ostream &operator<<(std::ostream &os,const GMap &map);
 
     //SETTERS:
     void setCell(const unsigned int x, const unsigned int y,glm::vec3 newValue)//change color of cell
@@ -49,16 +49,6 @@ public:
 
     bool setStartEnd(const unsigned int x, const unsigned int y,glm::vec3 newValue)//change color and set start or end point variable
     {
-        // if(grid[y][x]==alive_color && start_end.size()<2)
-        // {
-        //     grid[y][x] = newValue;
-        //     start_end.push_back(Coordinate(x,y));
-            
-        //     if(start_end.size()==2) 
-        //     {return 1;}
-        // }
-        // return 0;
-
         if(grid[y][x]!=dead_color && start_end.size()<=2)
         {
             grid[y][x] = newValue;
@@ -85,15 +75,16 @@ public:
     std::vector<Coordinate> getStart_end() const 
     {return start_end;} 
 
-    const unsigned int getNeighbourCount(const unsigned int o_x, const unsigned int o_y) const
+    const unsigned int getNeighbourCount(const unsigned int i_x, const unsigned int i_y) const
     {
         unsigned int neighbour_count = 0;
-        for (size_t y = o_y-1; y <= o_y+1; y++)
+        for (size_t y = i_y-1; y <= i_y+1; y++)
         {
-            for (size_t x = o_x-1; x <= o_x+1; x++)
+            for (size_t x = i_x-1; x <= i_x+1; x++)
             {
-                if((x!=o_x || y!=o_y) && grid[y][x] != dead_color)
-                    {neighbour_count++;}
+                if(!(x==i_x && y==i_y) 
+                    && (grid[y][x] != dead_color))
+                {neighbour_count++;}
             }
         }
         return neighbour_count;

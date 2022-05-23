@@ -1,5 +1,5 @@
 #pragma once
-#include "map.h"
+#include "GMap.h"
 
 class ContextManager
 {
@@ -35,7 +35,7 @@ public:
     }
 
     //Handle mouse click Coordinates
-    bool handleMouseClick(Map &map,glm::vec3 color)
+    bool handleMouseClick(GMap &map,glm::vec3 color)
     {
         int coord[]= {-1,-1};
         if(glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) 
