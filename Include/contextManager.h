@@ -44,8 +44,12 @@ public:
         if(glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) 
         {
             double xpos,ypos;
-            glfwGetCursorPos(window, &xpos, &ypos);
-            if (map.setStartEnd(xpos/cell_dim,ypos/cell_dim,color)==true)
+            glfwGetCursorPos(window, &xpos, &ypos);//get cursor position
+            if((xpos/cell_dim)>=map.DIM || (ypos/cell_dim)>=map.DIM ||
+               (xpos/cell_dim)<0 || (ypos/cell_dim)<0)//confirm if in bounds
+            {return false;}
+            
+            else if (map.setStartEnd(floor(xpos/cell_dim),floor(ypos/cell_dim),color)==true)//check if path finding succedded
             {return true;}
         }
         return false;
