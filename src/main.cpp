@@ -19,13 +19,13 @@
 const unsigned int SCR_DIM = 910;
 const unsigned int CELL_DIM = 10;
 const unsigned int GRID_DIM = SCR_DIM/CELL_DIM;
-const glm::vec3 DEAD_COLOR = glm::vec3(0.04f, 0.15f, 0.21f);		//deep blue #0a2635
-const glm::vec3 ALIVE_COLOR = glm::vec3(0.09f, 0.41f, 0.25f);		//green #166841
-const glm::vec3 SELECTION_COLOR = glm::vec3(0.90f, 0.87f, 0.81f);	//off-white #F2EFE9
-const glm::vec3 FLOOD_COLOR = glm::vec3(0.96f, 0.38f, 0.22f);		//orange #f56038
-const glm::vec3 AS_OPENED_COLOR = glm::vec3(1.00f, 0.79f, 0.48f);	//pale yellow #ffca7a
-const glm::vec3 AS_CLOSED_COLOR = glm::vec3(0.97f, 0.64f, 0.15f);	//orange yellow #f7a325
-const glm::vec3 AS_OPTIMAL_COLOR = glm::vec3(0.57f, 0.91f, 0.90f);	//teal #92e7e5
+const glm::vec3 DEAD_COLOR = glm::vec3(0.14f, 0.21f, 0.18f);		
+const glm::vec3 ALIVE_COLOR = glm::vec3(0.42f, 0.62f, 0.54f);		
+const glm::vec3 SELECTION_COLOR = glm::vec3(0.9f, 0.38f, 0.27f);	
+const glm::vec3 FLOOD_COLOR = glm::vec3(0.57f, 0.54f, 0.36f);		
+const glm::vec3 AS_OPENED_COLOR = glm::vec3(0.47f, 0.38f, 0.26f);	
+const glm::vec3 AS_CLOSED_COLOR = glm::vec3(0.72f, 0.58f, 0.40f);	
+const glm::vec3 AS_OPTIMAL_COLOR = glm::vec3(0.87f, 0.83f, 0.29f);	
 const glm::mat4 projection = glm::ortho(0.0f, float(SCR_DIM), float(SCR_DIM), 000.0f, -1.0f, 1.0f);//projection matrix
 //Verticies for Gird Cell
 const float vertices[] = {
