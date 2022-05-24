@@ -2,6 +2,10 @@
 #include <vector>
 #include "vertexBuffer.h"
 
+/*
+Author: Yalmaz
+A struct to store vertex buffer elements
+*/
 struct VertexBufferElement
 {
     unsigned int type;
@@ -9,6 +13,10 @@ struct VertexBufferElement
     unsigned char normalized;
 };
 
+/*
+Author: Yalmaz
+This class abstracts the vertext buffer layout to clean up the code a bit in main
+*/
 class VertexBufferLayout
 {
 private:
@@ -29,6 +37,10 @@ public:
     }
 };
 
+/*
+Author: Yalmaz
+This class abstracts the vertext array to clean up the code a bit in main
+*/
 class VertexArray
 {
 private:
@@ -44,11 +56,13 @@ public:
         glDeleteVertexArrays(1, &ID);
     }
 
+    //adds all elements in vertex buffers to the vertex array with their respective on layouts
     void addVertexBuffer(const VertexBuffer& vb, const VertexBufferLayout& layout)
     {
-        vb.bind();
+        vb.bind();//binds vertex buffer
         unsigned long long offset = 0;
-        const auto& elements = layout.getElements();
+        const auto& elements = layout.getElements();//gets all elements in layout
+        //adds each element to current vertex array
         for (unsigned int i = 0; i < elements.size(); i++)
         {
             const auto& element = elements[i];
@@ -58,10 +72,13 @@ public:
         }
     }
 
+    //binds vertex array
     void bind() const
     {
         glBindVertexArray(ID);
     }
+    
+    //un-binds vertex array
     void unbind() const
     {
         glBindVertexArray(0);

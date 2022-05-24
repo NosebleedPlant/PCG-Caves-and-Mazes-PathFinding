@@ -9,6 +9,10 @@
 #include <sstream>
 #include <iostream>
 
+/*
+NOTE: THIS IS CODE HAS BEEN NICKED IN ITS ENTIERTY FROM LEARNOPENGL, IT SERVES MY PURPOSES AND MOST LIKELY YOURS TOO.
+*/
+
 class Shader
 {
 public:

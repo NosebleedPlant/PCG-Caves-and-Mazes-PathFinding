@@ -1,6 +1,9 @@
 #pragma once
 #include "GMap.h"
-
+/*
+Author: Yalmaz
+This class manages the OPENGL context by creating and checking input etc
+*/
 class ContextManager
 {
 private:

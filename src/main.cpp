@@ -90,10 +90,16 @@ int main(int argc,char* argv[])
 	if(flag=="-Maze")
 	{
 		std::cout<<"Under Construction"<< std::endl;
+		glfwTerminate();
 		return -1;
 	}
 	else if(flag=="-Caves")
-	{map.generateCaves(4,4,4,40);}
+	{map.generateCaves(4,4,4,50);}
+	else
+	{
+		glfwTerminate();
+		return -1;
+	}
 
 	//SECTION 4: PATH FINDING
 	PathFinder pathFinder(AS_OPENED_COLOR,AS_CLOSED_COLOR,AS_OPTIMAL_COLOR);

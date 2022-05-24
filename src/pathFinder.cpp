@@ -33,8 +33,6 @@ float PathFinder::heuristic_function(Coordinate start,Coordinate goal)
     float dx = abs(start.first - goal.first);
     float dy = abs(start.second - goal.second);
     float cost = (D1 *(dx + dy)) + ((D2 - (2 * D1))* std::min(dx, dy));//octile distance
-    //float cost = std::max(dx, dy) + (0.5*std::min(dx, dy));
-    //float cost = std::sqrt((dx*dx)+(dy*dy));
     return cost;
 }
 
@@ -59,16 +57,14 @@ void PathFinder::path_reconstruction(GMap &map,std::map<Coordinate,Node>& set, N
 
 bool PathFinder::aStar(GMap &map)
 {
-    Coordinate start(map.getStart_end()[0]);
-    Coordinate goal(map.getStart_end()[1]);
+    Coordinate start(map.getStart_end()[0]),goal(map.getStart_end()[1]);
             
     std::priority_queue<Node,std::vector<Node>,Compare> open;
     open.push(Node(0,heuristic_function(start,goal),start,start));
 
     std::map<Coordinate,Node> closed;
     std::vector<Coordinate> neighbours;        
-
-    //for (size_t i = 0; i < 1; i++)   
+ 
     while(open.size()!=0)
     {
         //get new current node

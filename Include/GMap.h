@@ -9,6 +9,10 @@
 using Coordinate = std::pair<int,int>;
 using Grid = std::vector<std::vector<glm::vec3>>;
 
+/*
+Author: Yalmaz
+This class handels the creation of the maps and adjusts of cells in that map
+*/
 class GMap
 {
 private:
@@ -20,6 +24,8 @@ public:
     //constructor class randomply populates the map
     GMap(int dim,glm::vec3 dead, glm::vec3 alive);
 
+    //CELLULAR AUTOMATA:
+    // ------------------------------------------------------------------------
     //generates caves using cellular automata
     void generateCaves(unsigned int step_count,unsigned int death_limit,unsigned int birth_limit,//smoothing params
                        unsigned int threshold=50);//initalize param
@@ -30,97 +36,45 @@ public:
 
     //smoothing function denioses based on cellular automata rules
     void smoothMap(unsigned int death_limit,unsigned int birth_limit);
-
-    //OPERATOR OVERLOADS
-    friend std::ostream &operator<<(std::ostream &os,const GMap &map);
+    
+    //PRIMS ALGO:
+    // ------------------------------------------------------------------------
 
     //SETTERS:
-    void setCell(const unsigned int x, const unsigned int y,glm::vec3 newValue)//change color of cell
-    {grid[y][x] = newValue;}
+    // ------------------------------------------------------------------------
+    //change color of cell given x,y
+    void setCell(const unsigned int x, const unsigned int y,glm::vec3 newValue);
     
-    void setCell(Coordinate loc,glm::vec3 newValue)//change color of cell
-    {grid[loc.second][loc.first] = newValue;}//because outside is y inside is x
-
-    void setStartEndCells(glm::vec3 newValue)//change color of cell
-    {
-        setCell(start_end[0],newValue);//set start color
-        setCell(start_end[1],newValue);//set goal color
-    }
-
-    bool setStartEnd(const unsigned int x, const unsigned int y,glm::vec3 newValue)//change color and set start or end point variable
-    {
-        if(grid[y][x]!=dead_color && start_end.size()<=2)
-        {
-            grid[y][x] = newValue;
-            if(start_end.size()<2)
-            {start_end.push_back(Coordinate(x,y));}
-            else
-            {start_end[1]= (Coordinate(x,y));}
-
-            if(start_end.size()==2) 
-            {   std::cout<<"set_goal"<<std::endl;
-                grid = recovery_grid;
-                return true;}
-        }
-        return false;
-    }
+    //change color of cell given Coordinate
+    void setCell(Coordinate loc,glm::vec3 newValue);
     
+    //change location of and set start or end point variable
+    bool setStartEnd(const unsigned int x, const unsigned int y,glm::vec3 newValue);
+
+    //change color of start and end cell given
+    void setStartEndCells(glm::vec3 newValue);
+
     //GETTERS:
-    const glm::vec3 getCell(const unsigned int x, const unsigned int y)const
-    {return grid[y][x];}
+    // ------------------------------------------------------------------------
+    //get cell given x,y
+    const glm::vec3 getCell(const unsigned int x, const unsigned int y)const;
 
-    const glm::vec3 getCell(Coordinate loc)const
-    {return grid[loc.second][loc.first];}
+    //get cell given coordinate
+    const glm::vec3 getCell(Coordinate loc)const;
 
-    std::vector<Coordinate> getStart_end() const 
-    {return start_end;} 
+    //get start and end location
+    const std::vector<Coordinate> getStart_end() const;
 
-    const unsigned int getNeighbourCount(const unsigned int i_x, const unsigned int i_y) const
-    {
-        unsigned int neighbour_count = 0;
-        for (size_t y = i_y-1; y <= i_y+1; y++)
-        {
-            for (size_t x = i_x-1; x <= i_x+1; x++)
-            {
-                if(!(x==i_x && y==i_y) 
-                    && (grid[y][x] != dead_color))
-                {neighbour_count++;}
-            }
-        }
-        return neighbour_count;
-    }
+    //get number of living neighbours given x,y
+    const unsigned int getNeighbourCount(const unsigned int i_x, const unsigned int i_y) const;
 
-    void getNeighbours(const Coordinate loc, std::queue<Coordinate> &que) const
-    {
-        unsigned int i_x = loc.first, i_y = loc.second;
-        for (size_t y = i_y-1; y <= i_y+1; y++)
-        {
-            for (size_t x = i_x-1; x <= i_x+1; x++)
-            {
-                if(!(x==i_x && y==i_y) 
-                    && (grid[y][x] != dead_color))
-                {
-                    que.push(Coordinate(x,y));
-                }
-            }
-        }
-    }
+    //get coordinates of neighbours and add to que 
+    void getNeighbours(const Coordinate loc, std::queue<Coordinate> &que) const;
 
-    std::vector<Coordinate> getNeighbours(const Coordinate loc) const
-    {
-        unsigned int i_x = loc.first, i_y = loc.second;
-        std::vector<Coordinate> neighbours;
-        for (size_t y = i_y-1; y <= i_y+1; y++)
-        {
-            for (size_t x = i_x-1; x <= i_x+1; x++)
-            {
-                if(!(x==i_x && y==i_y) 
-                    && (grid[y][x] != dead_color))
-                {
-                    neighbours.push_back(Coordinate(x,y));
-                }
-            }
-        }
-        return neighbours;
-    }
+    //get coordinates of neighbours and return as vector
+    std::vector<Coordinate> getNeighbours(const Coordinate loc) const;
+
+    //OPERATOR OVERLOADS:
+    // ------------------------------------------------------------------------
+    friend std::ostream &operator<<(std::ostream &os,const GMap &map);
 };
