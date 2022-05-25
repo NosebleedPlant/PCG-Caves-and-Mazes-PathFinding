@@ -9,7 +9,7 @@ Goals of this mini project is to apply the following knowledge I have aquired:
 
 Currently only tested for windows
 
-To compile:
+#To compile:
 
 - clone repo
 - ensure mingw64 is installed if not adjust the .vscode files accordingly
