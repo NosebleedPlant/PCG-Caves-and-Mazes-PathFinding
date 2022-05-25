@@ -7,7 +7,11 @@ Goals of this mini project is to apply the following knowledge I have aquired:
 - Mazes using Prims's Algo
 - Pathfinding
 
-Currently only tested for windows
+**Currently only tested for windows**
+
+## Preview:
+
+![main_WkehY7PNUw](https://user-images.githubusercontent.com/42461443/170180387-ee5c4d32-9605-4db9-903a-3c1228d0c44c.gif)
 
 ## To compile:
 
