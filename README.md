@@ -4,12 +4,12 @@ Goals of this mini project is to apply the following knowledge I have aquired:
 - C++ Programming
 - Basic OpenGL
 - Procedural Caves using Cellular Automata
-- Mazes using Prims's Algo
+- Mazes using Randomized Depth First
 - Pathfinding
 
 **Currently only tested for windows**
 ## About:
-This is a simple application that randomly generates caves or a maze[under construction] and allows users to pathfind using A* between two points. The outputs are displayed using opengl. The purpose of this project as stated above was to exercise my understanding of various things I had picked up in classes outside of an academic setting in hopes of better ingraining them into my skillset.
+This is a simple application that randomly generates caves or a maze and allows users to pathfind using A* between two points. The outputs are displayed using opengl. The purpose of this project as stated above was to exercise my understanding of various things I had picked up in classes outside of an academic setting in hopes of better ingraining them into my skillset.
 
 ## Preview:
 
@@ -19,4 +19,7 @@ This is a simple application that randomly generates caves or a maze[under const
 
 - clone repo
 - ensure mingw64 is installed if not adjust the .vscode files accordingly
-- launch using ```./main -Caves``` flag
+- launch using ```./main -Caves``` flag for cave generation or ```./main -Maze``` for maze generation
+
+## Reflection:
+Overall I enjoyed working on this off and on for the past month ish. I was able to learn alot and thuroughly review my c++ which was nice. The biggest hurdle was coming to grips with opengl's eccentricities at the beggining, A-star also tripped me up a bit but mostly because of a few silly mistakes. I played the whole project by the ear as I was reviewing and learning along with it so the overall design of the code didnt get much time. Next time I would like to sit down and thuroughly plan out my project before hand.The Maze currently genertaes from the same starting point which reduces vairance a bit which is something I might change in the future. The pathfinding currently uses the same heuristic for both caves and maze which results in unneccissary searching in maze since diagonal movement is not possible. If working on something like this again it would be good to asses such things before hand and incorporate them into my design.
