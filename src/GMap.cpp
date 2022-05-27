@@ -52,8 +52,70 @@ void GMap::smoothMap(unsigned int death_limit,unsigned int birth_limit)
     recovery_grid = post_smoothing;//back up the grid to allow undo
 }
 
-//PRIMS ALGO:
+////RANDOMIZED DEPTH FIRST MAZE ALGO:
 // ------------------------------------------------------------------------
+void GMap::initalizeMaze()
+{
+    for (size_t y = 0; y < DIM; y++)
+    {
+        for (size_t x = 0; x < DIM; x++)
+        {
+            if (y%2==1||x%2==1)
+            {grid[y][x]=dead_color;}
+        }
+    }
+}
+
+std::vector<Coordinate>::iterator GMap::randomSelect(std::vector<Coordinate>::iterator start, std::vector<Coordinate>::iterator end) 
+{
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, std::distance(start, end) - 1);
+    std::advance(start, dis(gen));
+    return start;
+}
+
+void GMap::removeWall(Coordinate start, Coordinate end)
+{
+    //difference between start and end gives direction, division by 2 adjusts magnitude
+    int wall_x = (end.first-start.first)/2;
+    int wall_y = (end.second-start.second)/2;
+    Coordinate wall = Coordinate(start.first+wall_x,start.second+wall_y);
+    setCell(wall,alive_color);//set the wall to living state
+}
+
+void GMap::generateMaze()
+{
+    initalizeMaze();//initalize map with walls
+
+    Coordinate current(40,40);//choose start point(randomize this)
+    std::stack<Coordinate> stack;//stack
+    
+    stack.push(current);//push to stack
+    //get unvisted neighbours
+    //while stack not empty
+    //for (size_t i = 0; i < 100; i++)        
+    while (stack.empty()!=true)
+    {
+        //pop top as current
+        current = stack.top();
+        stack.pop();
+
+        std::vector<Coordinate> neighbours;
+        getOrthogonalNeighbours(current,neighbours);
+        //if current has unvisted neighbours
+        if(neighbours.size()>0)
+        {
+            stack.push(current);//push current back on to stack, work incomplete
+            Coordinate selection = *randomSelect(neighbours.begin(),neighbours.end());//choose unvisted neighbour
+            //Coordinate selection = neighbours[0];
+            removeWall(current,selection);//remove wall between current and chosen neighbour
+            setCell(selection,alive_color);//mark chosen as visited
+            stack.push(selection);//push to stack
+        }
+    }
+    recovery_grid = grid;
+}
 
 //GETTERS
 // ------------------------------------------------------------------------
@@ -115,6 +177,28 @@ void GMap::getNeighbours(const Coordinate loc, std::vector<Coordinate> &list) co
         }
     }
     return;
+}
+
+void GMap::getOrthogonalNeighbours(Coordinate loc,std::vector<Coordinate> &list)
+{
+    const int i_x=loc.first;
+    const int i_y=loc.second;       
+
+    for (int y = i_y-2; y <= i_y+2;)
+    {
+        for (int x = i_x-2; x <= i_x+2;)
+        { 
+            if((x==i_x || y==i_y)//only orthogonal
+                && !(x==i_x && y==i_y)//not self
+                && (x>=0 && x<DIM && y>=0 && y<DIM)//in range 
+                && (grid[y][x] != alive_color))//alive
+            {
+                list.push_back(Coordinate(x,y));
+            }
+            x+=2;
+        }
+        y+=2;
+    }
 }
 
 //SETTERS

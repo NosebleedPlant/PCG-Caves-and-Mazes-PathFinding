@@ -38,98 +38,19 @@ public:
     //smoothing function denioses based on cellular automata rules
     void smoothMap(unsigned int death_limit,unsigned int birth_limit);
     
-    //PRIMS ALGO:
+    //RANDOMIZED DEPTH FIRST MAZE ALGO:
     // ------------------------------------------------------------------------
-    void initalize()
-    {
-        for (size_t y = 0; y < DIM; y++)
-        {
-            for (size_t x = 0; x < DIM; x++)
-            {
-                if (y%2==1||x%2==1)
-                {grid[y][x]=dead_color;}
-            }
-        }
-    }
-    
-    void getOrthogonalNeighbours(Coordinate loc,std::vector<Coordinate> &list)
-    {
-        const int i_x=loc.first;
-        const int i_y=loc.second;       
+    //initializes walls for maze generations by turning every odd row and column into dead cells.
+    void initalizeMaze();
 
-        for (int y = i_y-2; y <= i_y+2;)
-        {
-            for (int x = i_x-2; x <= i_x+2;)
-            { 
-                if((x==i_x || y==i_y)//only orthogonal
-                    && !(x==i_x && y==i_y)//not self
-                    && (x>=0 && x<DIM && y>=0 && y<DIM)//in range 
-                    && (grid[y][x] != alive_color))//alive
-                {
-                    list.push_back(Coordinate(x,y));
-                    if(x==0&&y==0)
-                    std::cout<<"pushed "<<std::endl;
-                }
-                x+=2;
-            }
-            y+=2;
-        }
-    }
+    //randomly selects element from vector
+    std::vector<Coordinate>::iterator randomSelect(std::vector<Coordinate>::iterator start, std::vector<Coordinate>::iterator end);
 
-    std::vector<Coordinate>::iterator select_randomly(std::vector<Coordinate>::iterator start, std::vector<Coordinate>::iterator end) {
-        static std::random_device rd;
-        static std::mt19937 gen(rd());
-        std::uniform_int_distribution<> dis(0, std::distance(start, end) - 1);
-        std::advance(start, dis(gen));
-        return start;
-    }
+    //sets the wall between two valid nodes to a living state
+    void removeWall(Coordinate start, Coordinate end);
 
-    void removeWall(Coordinate start, Coordinate end)
-    {
-        int wall_x = (end.first-start.first)/2;
-        int wall_y = (end.second-start.second)/2;
-        Coordinate wall = Coordinate(start.first+wall_x,start.second+wall_y);
-        setCell(wall,alive_color);
-        // std::cout<<"start: "<<start.first<<","<<start.second<<std::endl;
-        // std::cout<<"wall: "<<wall.first<<","<<wall.second<<std::endl;
-        // std::cout<<"end: "<<end.first<<","<<end.second<<std::endl;
-        // std::cout<<"------------"<<std::endl;
-    }
-
-    void generateMaze()
-    {
-        initalize();//initalize map with walls
-
-        Coordinate current(40,40);//choose start point(randomize this)
-        std::stack<Coordinate> stack;//stack
-       
-        stack.push(current);//push to stack
-        //get unvisted neighbours
-        //while stack not empty
-        //for (size_t i = 0; i < 100; i++)        
-        while (stack.empty()!=true)
-        {
-            //pop top as current
-            current = stack.top();
-            stack.pop();
-
-            std::vector<Coordinate> neighbours;
-            getOrthogonalNeighbours(current,neighbours);
-            //if current has unvisted neighbours
-            if(neighbours.size()>0)
-            {
-                stack.push(current);//push current back on to stack, work incomplete
-                Coordinate selection = *select_randomly(neighbours.begin(),neighbours.end());//choose unvisted neighbour
-                //Coordinate selection = neighbours[0];
-                removeWall(current,selection);//remove wall between current and chosen neighbour
-                setCell(selection,alive_color);//mark chosen as visited
-                stack.push(selection);//push to stack
-                //std::cout<<"current: "<<current.first<<","<<current.second<<std::endl;
-                //std::cout<<"selection: "<<selection.first<<","<<selection.second<<std::endl;
-            }
-        }
-        recovery_grid = grid;
-    }
+    //generates the mazes
+    void generateMaze();
 
     //SETTERS:
     // ------------------------------------------------------------------------
@@ -164,6 +85,8 @@ public:
 
     //get coordinates of neighbours and return as vector
     void getNeighbours(const Coordinate loc, std::vector<Coordinate> &list) const;
+
+    void getOrthogonalNeighbours(Coordinate loc,std::vector<Coordinate> &list);
 
     //OPERATOR OVERLOADS:
     // ------------------------------------------------------------------------
