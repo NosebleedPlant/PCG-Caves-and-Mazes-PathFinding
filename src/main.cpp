@@ -89,9 +89,7 @@ int main(int argc,char* argv[])
 	GMap map(GRID_DIM,DEAD_COLOR, ALIVE_COLOR);
 	if(flag=="-Maze")
 	{
-		std::cout<<"Under Construction"<< std::endl;
-		glfwTerminate();
-		return -1;
+		map.generateMaze();
 	}
 	else if(flag=="-Caves")
 	{map.generateCaves(4,4,4,50);}

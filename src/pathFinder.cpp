@@ -24,6 +24,7 @@ bool PathFinder::flood_fill(GMap &map,glm::vec3 flood_color)
             map.getNeighbours(current,que);
         }                
     }
+    std::cout<<"end: "<<end.first<<","<<end.second<<std::endl;
     std::cout<<"NO PATH TO GOAL"<<std::endl;
     return false;
 }
@@ -62,11 +63,10 @@ bool PathFinder::aStar(GMap &map)
     std::priority_queue<Node,std::vector<Node>,Compare> open;
     open.push(Node(0,heuristic_function(start,goal),start,start));
 
-    std::map<Coordinate,Node> closed;
-    std::vector<Coordinate> neighbours;        
+    std::map<Coordinate,Node> closed;        
  
     while(open.size()!=0)
-    {
+    {        
         //get new current node
         Node current(open.top());
         open.pop();
@@ -88,7 +88,8 @@ bool PathFinder::aStar(GMap &map)
         }
 
         //get neighbours
-        neighbours = map.getNeighbours(current.coord);
+        std::vector<Coordinate> neighbours;
+        map.getNeighbours(current.coord,neighbours);
 
         //for each neighbour
         //std::cout<<current.coord.first<<","<<current.coord.second<<std::endl;

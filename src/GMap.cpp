@@ -20,9 +20,9 @@ void GMap::randomPopulate(unsigned int threshold)
     std::mt19937 generate(seed());
     std::uniform_int_distribution<> distribution(1, 100);
 
-    for (size_t y = 0; y < DIM; y++)
+    for (int y = 0; y < DIM; y++)
     {
-        for (size_t x = 0; x < DIM; x++)
+        for (int x = 0; x < DIM; x++)
         {
             if(x==0||x==DIM-1||y==0||y==DIM-1)
                 {grid[y][x] = dead_color;}
@@ -36,9 +36,9 @@ void GMap::smoothMap(unsigned int death_limit,unsigned int birth_limit)
 {
     //std::array<std::array<glm::vec3,DIM>,DIM> post_smoothing(grid);
     Grid post_smoothing(grid);
-    for (size_t y = 1; y < DIM-1; y++)
+    for (int y = 1; y < DIM-1; y++)
     {
-        for (size_t x = 1; x < DIM-1; x++)
+        for (int x = 1; x < DIM-1; x++)
         {
             glm::vec3 current_cell = grid[y][x];
             unsigned int ngbrs = getNeighbourCount(x,y);
@@ -69,11 +69,12 @@ const std::vector<Coordinate> GMap::getStart_end() const
 const unsigned int GMap::getNeighbourCount(const unsigned int i_x, const unsigned int i_y) const
 {
     unsigned int neighbour_count = 0;
-    for (size_t y = i_y-1; y <= i_y+1; y++)
+    for (int y = i_y-1; y <= i_y+1; y++)
     {
-        for (size_t x = i_x-1; x <= i_x+1; x++)
+        for (int x = i_x-1; x <= i_x+1; x++)
         {
-            if(!(x==i_x && y==i_y) 
+            if(!(x==i_x && y==i_y)
+                && (x>=0 && x<DIM && y>=0 && y<DIM) 
                 && (grid[y][x] != dead_color))//make sure neighbour is not dead and increment
             {neighbour_count++;}
         }
@@ -83,12 +84,13 @@ const unsigned int GMap::getNeighbourCount(const unsigned int i_x, const unsigne
 
 void GMap::getNeighbours(const Coordinate loc, std::queue<Coordinate> &que) const
 {
-    unsigned int i_x = loc.first, i_y = loc.second;
-    for (size_t y = i_y-1; y <= i_y+1; y++)
+    int i_x = loc.first, i_y = loc.second;
+    for (int y = i_y-1; y <= i_y+1; y++)
     {
-        for (size_t x = i_x-1; x <= i_x+1; x++)
+        for (int x = i_x-1; x <= i_x+1; x++)
         {
-            if(!(x==i_x && y==i_y) 
+            if(!(x==i_x && y==i_y)
+                && (x>=0 && x<DIM && y>=0 && y<DIM) 
                 && (grid[y][x] != dead_color))//make sure neighbour is not dead and push to que
             {
                 que.push(Coordinate(x,y));
@@ -97,22 +99,22 @@ void GMap::getNeighbours(const Coordinate loc, std::queue<Coordinate> &que) cons
     }
 }
 
-std::vector<Coordinate> GMap::getNeighbours(const Coordinate loc) const
+void GMap::getNeighbours(const Coordinate loc, std::vector<Coordinate> &list) const
 {
-    unsigned int i_x = loc.first, i_y = loc.second;
-    std::vector<Coordinate> neighbours;
-    for (size_t y = i_y-1; y <= i_y+1; y++)
+    int i_x = loc.first, i_y = loc.second;
+    for (int y = i_y-1; y <= i_y+1; y++)
     {
-        for (size_t x = i_x-1; x <= i_x+1; x++)
+        for (int x = i_x-1; x <= i_x+1; x++)
         {
-            if(!(x==i_x && y==i_y) 
+            if(!(x==i_x && y==i_y)
+                && (x>=0 && x<DIM && y>=0 && y<DIM) 
                 && (grid[y][x] != dead_color))//make sure neighbour is not dead and add to vector
             {
-                neighbours.push_back(Coordinate(x,y));
+                list.push_back(Coordinate(x,y));
             }
         }
     }
-    return neighbours;
+    return;
 }
 
 //SETTERS
@@ -151,9 +153,9 @@ bool GMap::setStartEnd(const unsigned int x, const unsigned int y,glm::vec3 newV
 // ------------------------------------------------------------------------
 std::ostream &operator<<(std::ostream &os,const GMap &map)
 {
-    for (size_t y = 0; y < map.DIM; y++)
+    for (int y = 0; y < map.DIM; y++)
     {
-        for (size_t x = 0; x < map.DIM; x++)
+        for (int x = 0; x < map.DIM; x++)
         {
             if (map.grid[y][x]==map.dead_color)
                 {os<<0;}
