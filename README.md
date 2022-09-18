@@ -19,6 +19,7 @@ This is a simple application that randomly generates caves or a maze and allows 
 
 - clone repo
 - ensure mingw64 is installed if not adjust the .vscode files accordingly
+- run build task with ```Ctrl+Shift+B``` in vscode after confirming the directories are correct
 - launch using ```./main -Caves``` flag for cave generation or ```./main -Maze``` for maze generation
 
 ## Reflection:
