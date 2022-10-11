@@ -9,7 +9,7 @@ Goals of this mini project is to apply the following knowledge I have aquired:
 
 **Currently only tested for windows**
 ## About:
-This is a simple application that randomly generates caves or a maze and allows users to pathfind using A* between two points. The outputs are displayed using opengl. The purpose of this project as stated above was to exercise my understanding of various things I had picked up in classes outside of an academic setting in hopes of better ingraining them into my skillset.
+This is a simple application that randomly generates caves or a maze and allows users to pathfind using A* between two points. The outputs are displayed using opengl. The purpose of this project as stated above was to exercise my understanding of various things I had picked up in classes outside of an academic setting in hopes of better ingraining them into my skillset. The visualization shows the flood fill used to detect if the start and end is actually connected as well as the nodes opened and closed by A*. The yellow nodes represent the optimal path
 
 ## Preview:
 
